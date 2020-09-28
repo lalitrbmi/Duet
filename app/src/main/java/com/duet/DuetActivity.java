@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -247,7 +248,7 @@ public class DuetActivity extends AppCompatActivity {
 //                    startActivity(intent);
 //                    finish();
                     // here your result  in outputVideo uri
-
+                    Toast.makeText(DuetActivity.this, "Success!", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
