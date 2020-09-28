@@ -4,8 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true"
     android:keepScreenOn="true"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -15,33 +17,14 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:orientation="horizontal">
-
-            <VideoView
-                android:id="@+id/video_view1"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight=".5" />
-
-            <VideoView
-                android:id="@+id/video_view2"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight=".5" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_margin="5dp"
-            android:gravity="center">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <Button
                 android:id="@+id/btn1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="5dp"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
                 android:background="#F44336"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
@@ -51,26 +34,40 @@
 
             </Button>
 
+            <VideoView
+                android:id="@+id/video_view1"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="5dp" />
+
             <Button
                 android:id="@+id/btn2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
                 android:background="#03A9F4"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
-                android:text="Choose First Video"
+                android:text="Choose Second Video"
                 android:textAllCaps="false"
                 android:textColor="#ffffff">
 
             </Button>
 
+            <VideoView
+                android:id="@+id/video_view2"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="5dp" />
         </LinearLayout>
 
         <Button
             android:id="@+id/btn3"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginTop="5dp"
             android:background="#009688"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
@@ -80,18 +77,5 @@
 
         </Button>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Output Video"
-            android:textColor="#000000"
-            android:textSize="20dp">
-
-        </TextView>
-
-        <VideoView
-            android:id="@+id/video_view3"
-            android:layout_width="match_parent"
-            android:layout_height="200dp" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

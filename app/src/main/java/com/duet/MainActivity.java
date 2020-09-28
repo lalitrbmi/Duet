@@ -19,15 +19,10 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.myduetlib.fun.DuetActivity;
-import com.myduetlib.fun.WorkDone;
-
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    VideoView video_view1, video_view2, video_view3;
+    VideoView video_view1, video_view2;
     Button btn1, btn2, btn3;
     String firstVideoPath, secondVideoPath;
 
@@ -42,37 +37,34 @@ public class MainActivity extends AppCompatActivity {
     private void init() {
         video_view1 = findViewById(R.id.video_view1);
         video_view2 = findViewById(R.id.video_view2);
-        video_view3 = findViewById(R.id.video_view3);
         btn1 = findViewById(R.id.btn1);
         btn2 = findViewById(R.id.btn2);
         btn3 = findViewById(R.id.btn3);
 
-        btn1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setType("video/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select a Video "), 1);
-            }
+        btn1.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setType("video/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select a Video "), 1);
         });
-        btn2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setType("video/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select a Video "), 2);
-            }
+        btn2.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setType("video/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select a Video "), 2);
         });
         btn3.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, DuetActivity.class);
-            intent.putExtra("firstVideoPath", firstVideoPath);
-            intent.putExtra("secondVideoPath", secondVideoPath);
-            intent.putExtra("outputFolderName", "Duet");
-            intent.putExtra("progressBarMsg", "progressBarMsg wait..");
-            intent.putExtra("duetType", 1);
-            startActivityForResult(intent, 3);
+            if(firstVideoPath!=null&&secondVideoPath!=null) {
+                Intent intent = new Intent(MainActivity.this, DuetActivity.class);
+                intent.putExtra("firstVideoPath", firstVideoPath);
+                intent.putExtra("secondVideoPath", secondVideoPath);
+                intent.putExtra("outputFolderName", "Duet");
+                intent.putExtra("progressBarMsg", "Please wait this process take upto 5 minutes..");
+                intent.putExtra("duetType", 0);// 1 for vertical and 0 for horizontal
+                startActivity(intent);
+            }else {
+                Toast.makeText(this, "Select Videos!", Toast.LENGTH_SHORT).show();
+            }
         });
 
     }
@@ -109,17 +101,10 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             }
-            if (requestCode == 3) {
-                String message = data.getStringExtra("MESSAGE");
-                video_view3.setVideoPath(message);
-                MediaController mediaController = new MediaController(this);
-                mediaController.setAnchorView(video_view3);
-                video_view3.setMediaController(mediaController);
-                video_view3.seekTo(1);
-            }
         }
     }
 
+    //check runtime permission...
     private boolean checkForPermission() {
         if (Build.VERSION.SDK_INT >= 23) {
             String[] PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
