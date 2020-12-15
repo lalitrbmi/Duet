@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.MediaController;
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
                     mediaController.setAnchorView(video_view1);
                     video_view1.setMediaController(mediaController);
                     video_view1.seekTo(1);
+                    Log.d("lll","----"+firstVideoPath);
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
                 }

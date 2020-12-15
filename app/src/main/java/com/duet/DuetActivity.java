@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -12,21 +13,19 @@ import android.widget.VideoView;
 import androidx.appcompat.app.AppCompatActivity;
 
 
-import com.duet.exceptions.FFmpegCommandAlreadyRunningException;
-import com.duet.exceptions.FFmpegNotSupportedException;
-import com.duet.lib.FFmpeg;
-import com.duet.lib.FFmpegExecuteResponseHandler;
-import com.duet.lib.LoadBinaryResponseHandler;
+import com.arthenica.mobileffmpeg.Config;
+import com.arthenica.mobileffmpeg.FFmpeg;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
+
 public class DuetActivity extends AppCompatActivity {
 
     private VideoView andExoPlayerView, andExoPlayerView1;
     private TextView recordBtn;
-    private FFmpeg ffmpeg;
     private String secondVideoPath, newsecondVideoPath, firstVideoPath, newfirstVideoPath, folderName, progressMsg;
     private int duetType;
     private String type;
@@ -53,7 +52,7 @@ public class DuetActivity extends AppCompatActivity {
         andExoPlayerView1.setVideoPath(secondVideoPath);
         recordBtn.setOnClickListener(v -> {
 //            playVideo();
-            loadFFMpegBinary();
+            makesameHieghtVideo1();
         });
         MediaController mediaController = new MediaController(this);
         mediaController.setAnchorView(andExoPlayerView);
@@ -111,106 +110,32 @@ public class DuetActivity extends AppCompatActivity {
     }
 
 
-    private void loadFFMpegBinary() {
-        try {
-            if (ffmpeg == null) {
-                ffmpeg = FFmpeg.getInstance(this);
-            }
-            ffmpeg.loadBinary(new LoadBinaryResponseHandler() {
-                @Override
-                public void onFailure() {
-                }
-
-                @Override
-                public void onSuccess() {
-                    makesameHieghtVideo1();
-                }
-            });
-        } catch (FFmpegNotSupportedException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-        }
-    }
-
     private void makesameHieghtVideo1() {
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(progressMsg);
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
         newfirstVideoPath = getVideoFilePath();
-        String[] command = {"-i", firstVideoPath, "-vf", "scale=160:500", newfirstVideoPath};
-        try {
-            ffmpeg.execute(command, new FFmpegExecuteResponseHandler() {
-                @Override
-                public void onSuccess(String message) {
-                    makesameHieghtVideo2();
-                }
-
-                @Override
-                public void onProgress(String message) {
-                    progressDialog.setMessage(progressMsg);
-                }
-
-                @Override
-                public void onFailure(String message) {
-                    progressDialog.dismiss();
-                }
-
-                @Override
-                public void onStart() {
-                    progressDialog.show();
-                }
-
-                @Override
-                public void onFinish() {
-                    progressDialog.dismiss();
-
-                }
-            });
-        } catch (FFmpegCommandAlreadyRunningException e) {
-            e.printStackTrace();
+        String[] command = {"-y", "-i", firstVideoPath, "-preset", "ultrafast", "-vf", "scale=480:840", newfirstVideoPath};
+        long rc = FFmpeg.execute(command);
+        if (rc == RETURN_CODE_SUCCESS) {
+            makesameHieghtVideo2(progressDialog);
+        } else {
+            progressDialog.dismiss();
         }
     }
 
     //if make vertical duet then make width same of both videos
 //if make horizontal duet then make layout_height same of both videos
-    private void makesameHieghtVideo2() {
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(progressMsg);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
+    private void makesameHieghtVideo2(ProgressDialog progressDialog) {
         newsecondVideoPath = getVideoFilePath();
-        String[] command = {"-i", secondVideoPath, "-vf", "scale=160:500", newsecondVideoPath};
-        try {
-            ffmpeg.execute(command, new FFmpegExecuteResponseHandler() {
-                @Override
-                public void onSuccess(String message) {
-                    addAddtwoVideo();
-                }
-
-                @Override
-                public void onProgress(String message) {
-                    progressDialog.setMessage(progressMsg);
-                }
-
-                @Override
-                public void onFailure(String message) {
-                    progressDialog.dismiss();
-                }
-
-                @Override
-                public void onStart() {
-                    progressDialog.show();
-                }
-
-                @Override
-                public void onFinish() {
-                    progressDialog.dismiss();
-
-                }
-            });
-        } catch (FFmpegCommandAlreadyRunningException e) {
-            e.printStackTrace();
+        String[] command = {"-y", "-i", secondVideoPath, "-preset", "ultrafast", "-vf", "scale=480:840", newsecondVideoPath};
+        long rc = FFmpeg.execute(command);
+        if (rc == RETURN_CODE_SUCCESS) {
+            addAddtwoVideo(progressDialog);
+        } else {
+            progressDialog.dismiss();
         }
     }
 
@@ -227,54 +152,33 @@ public class DuetActivity extends AppCompatActivity {
         return path + fname;
     }
 
-    private void addAddtwoVideo() {
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(progressMsg);
-        progressDialog.setCancelable(false);
-        progressDialog.setCanceledOnTouchOutside(false);
+    private void addAddtwoVideo(ProgressDialog progressDialog) {
         String outputVideo = getVideoFilePath();
         if (duetType == 0) {
             type = "hstack";
         } else {
             type = "vstack";
         }
-        String[] command = {"-i", newfirstVideoPath, "-i", newsecondVideoPath, "-filter_complex", type, outputVideo};
-        try {
-            ffmpeg.execute(command, new FFmpegExecuteResponseHandler() {
-                @Override
-                public void onSuccess(String message) {
-//                    Intent intent = new Intent(DuetActivity.this, OutputActivity.class);
-//                    intent.putExtra("url", outputVideo);
-//                    startActivity(intent);
-//                    finish();
-                    // here your result  in outputVideo uri
-                    Toast.makeText(DuetActivity.this, "Success!", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onProgress(String message) {
-                    progressDialog.setMessage(progressMsg);
-                }
-
-                @Override
-                public void onFailure(String message) {
+        Config.enableLogCallback(message -> Log.e(Config.TAG, message.getText()));
+        Config.enableStatisticsCallback(newStatistics -> progressDialog.setMessage("progress : video "));
+        String[] command = {"-y", "-i", newfirstVideoPath, "-i", newsecondVideoPath, "-preset", "ultrafast", "-filter_complex", "hstack", outputVideo};
+        long rc = FFmpeg.executeAsync(command, (executionId, returnCode) -> {
+            if (returnCode == RETURN_CODE_SUCCESS) {
+                progressDialog.dismiss();
+                Toast.makeText(this, "Duet  Done", Toast.LENGTH_LONG).show();
+                //output is outputVideo
+//            Intent intent = new Intent(this, OutPutActivity.class);
+//            intent.putExtra("url", outputVideo);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(intent);
+//            finish();
+            } else if (returnCode == Config.RETURN_CODE_CANCEL) {
+                if (progressDialog != null)
                     progressDialog.dismiss();
-                }
-
-                @Override
-                public void onStart() {
-                    progressDialog.show();
-                }
-
-                @Override
-                public void onFinish() {
+            } else {
+                if (progressDialog != null)
                     progressDialog.dismiss();
-
-
-                }
-            });
-        } catch (FFmpegCommandAlreadyRunningException e) {
-            e.printStackTrace();
-        }
+            }
+        });
     }
 }
