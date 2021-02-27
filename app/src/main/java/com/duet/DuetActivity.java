@@ -2,6 +2,7 @@ package com.duet;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -139,18 +140,26 @@ public class DuetActivity extends AppCompatActivity {
         }
     }
 
+    String pathkya;
 
     protected String getVideoFilePath() {
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName + "/";
-        File dir = new File(path);
         String fname = new SimpleDateFormat("yyyyMM_dd-HHmmss").format(new Date()) + "duet.mp4";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            File appSpecificExternalDir = new File(getExternalFilesDir("DuetLK"), fname);
+            pathkya = appSpecificExternalDir.getAbsolutePath();
+        } else {
+            String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + folderName + "/";
+            File dir = new File(path);
 
-        boolean isDirectoryCreated = dir.exists();
-        if (!isDirectoryCreated) {
-            dir.mkdir();
+            boolean isDirectoryCreated = dir.exists();
+            if (!isDirectoryCreated) {
+                dir.mkdir();
+            }
+            pathkya = path + fname;
         }
-        return path + fname;
+        return pathkya;
     }
+
 
     private void addAddtwoVideo(ProgressDialog progressDialog) {
         String outputVideo = getVideoFilePath();
@@ -167,11 +176,11 @@ public class DuetActivity extends AppCompatActivity {
                 progressDialog.dismiss();
                 Toast.makeText(this, "Duet  Done", Toast.LENGTH_LONG).show();
                 //output is outputVideo
-//            Intent intent = new Intent(this, OutPutActivity.class);
-//            intent.putExtra("url", outputVideo);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-//            startActivity(intent);
-//            finish();
+                Intent intent = new Intent(this, OutputActivity.class);
+                intent.putExtra("url", outputVideo);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
             } else if (returnCode == Config.RETURN_CODE_CANCEL) {
                 if (progressDialog != null)
                     progressDialog.dismiss();

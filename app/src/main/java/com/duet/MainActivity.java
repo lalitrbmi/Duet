@@ -7,12 +7,16 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +24,9 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import java.io.File;
 import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     VideoView video_view1, video_view2;
@@ -33,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         checkForPermission();
         init();
+        File app = getExternalFilesDir("DuetLK");
+        app.delete();
     }
 
     private void init() {
@@ -45,17 +53,25 @@ public class MainActivity extends AppCompatActivity {
         btn1.setOnClickListener(v -> {
             Intent intent = new Intent();
             intent.setType("video/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+            } else {
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+            }
             startActivityForResult(Intent.createChooser(intent, "Select a Video "), 1);
         });
         btn2.setOnClickListener(v -> {
             Intent intent = new Intent();
             intent.setType("video/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+            } else {
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+            }
             startActivityForResult(Intent.createChooser(intent, "Select a Video "), 2);
         });
         btn3.setOnClickListener(v -> {
-            if(firstVideoPath!=null&&secondVideoPath!=null) {
+            if (firstVideoPath != null && secondVideoPath != null) {
                 Intent intent = new Intent(MainActivity.this, DuetActivity.class);
                 intent.putExtra("firstVideoPath", firstVideoPath);
                 intent.putExtra("secondVideoPath", secondVideoPath);
@@ -63,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("progressBarMsg", "Please wait this process take upto 5 minutes..");
                 intent.putExtra("duetType", 0);// 1 for vertical and 0 for horizontal
                 startActivity(intent);
-            }else {
+            } else {
                 Toast.makeText(this, "Select Videos!", Toast.LENGTH_SHORT).show();
             }
         });
@@ -76,32 +92,23 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == 1) {
                 Uri selectedVideo = data.getData();
-                try {
-                    firstVideoPath = PathUtil.getPath(this, selectedVideo);
-                    video_view1.setVideoPath(firstVideoPath);
-                    MediaController mediaController = new MediaController(this);
-                    mediaController.setAnchorView(video_view1);
-                    video_view1.setMediaController(mediaController);
-                    video_view1.seekTo(1);
-                    Log.d("lll","----"+firstVideoPath);
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
+                firstVideoPath = PathUtil.getRealPath(this, selectedVideo);
+                video_view1.setVideoPath(firstVideoPath);
+                MediaController mediaController = new MediaController(this);
+                mediaController.setAnchorView(video_view1);
+                video_view1.setMediaController(mediaController);
+                video_view1.seekTo(1);
+                Log.d("lll", "----" + firstVideoPath);
 
             }
             if (requestCode == 2) {
                 Uri selectedVideo = data.getData();
-                try {
-                    secondVideoPath = PathUtil.getPath(this, selectedVideo);
-                    video_view2.setVideoPath(secondVideoPath);
-                    MediaController mediaController = new MediaController(this);
-                    mediaController.setAnchorView(video_view2);
-                    video_view2.setMediaController(mediaController);
-                    video_view2.seekTo(1);
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
-
+                secondVideoPath = PathUtil.getRealPath(this, selectedVideo);
+                video_view2.setVideoPath(secondVideoPath);
+                MediaController mediaController = new MediaController(this);
+                mediaController.setAnchorView(video_view2);
+                video_view2.setMediaController(mediaController);
+                video_view2.seekTo(1);
             }
         }
     }

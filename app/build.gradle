@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.1"
+    buildToolsVersion '30.0.2'
     defaultConfig {
         applicationId "com.duet"
         minSdkVersion 16
@@ -30,5 +30,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    //ffmpeg lib...
     implementation 'com.arthenica:mobile-ffmpeg-full-gpl:4.4.LTS'
+//        implementation 'com.arthenica:mobile-ffmpeg-full:4.4.LTS'
+
 }
